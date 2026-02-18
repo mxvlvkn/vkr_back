@@ -1,0 +1,2 @@
+go mod tidy
+go run cmd/wms/main.go

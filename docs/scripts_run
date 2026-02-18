@@ -1,0 +1,1 @@
+go run ./scripts/generate_password_hash.go -password=test
