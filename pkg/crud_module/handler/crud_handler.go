@@ -21,7 +21,7 @@ type CRUDHandler[
 	GetResponseT cruddto.GetResponse,
 ] struct {
 	CRUDService crudservice.CRUDServiceI[ModelT]
-	tableName string
+	TableName string
 }
 
 func NewCRUDHandler[
@@ -45,7 +45,7 @@ func NewCRUDHandler[
 		GetResponseT,
 	]{
 		CRUDService: CRUDService,
-		tableName: tableName,
+		TableName: tableName,
 	}
 }
 
@@ -61,7 +61,7 @@ func (h *CRUDHandler[ModelT, CreateRequestT, SetRequestT, GetResponseT]) GetAll(
 	if err != nil {
 		c.Error(fmt.Errorf("GetAll: Ошибка обработки запроса: %w", err))
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-			"error": fmt.Sprintf("Ошибка получения \"%v\"", h.tableName),
+			"error": fmt.Sprintf("Ошибка получения \"%v\"", h.TableName),
 		})
 		return
 	}
@@ -80,9 +80,6 @@ func (h *CRUDHandler[ModelT, CreateRequestT, SetRequestT, GetResponseT]) Create(
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "Пустые данные"})
 		return
 	}
-
-	fmt.Println("jsonStr")
-	fmt.Println(jsonStr)
 
 	var req CreateRequestT
 	if err := json.Unmarshal([]byte(jsonStr), &req); err != nil {
@@ -103,7 +100,7 @@ func (h *CRUDHandler[ModelT, CreateRequestT, SetRequestT, GetResponseT]) Create(
 	err := h.CRUDService.Create(c, req)
 	if err != nil {
 		c.Error(fmt.Errorf("Create: Ошибка обработки запроса: %w", err))
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": fmt.Errorf("Ошибка создания \"%v\"", h.tableName)})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Ошибка создания \"%v\"", h.TableName)})
 		return
 	}
 
@@ -126,7 +123,7 @@ func (h *CRUDHandler[ModelT, CreateRequestT, SetRequestT, GetResponseT]) Delete(
 	err := h.CRUDService.Delete(c.Request.Context(), req.ID)
 	if err != nil {
 		c.Error(fmt.Errorf("Delete: Неккоректные данные: %w", err))
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": fmt.Errorf("Ошибка удаления \"%v\"", h.tableName)})
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": fmt.Sprintf("Ошибка удаления \"%v\"", h.TableName)})
 		return
 	}
 
@@ -148,7 +145,7 @@ func (h *CRUDHandler[ModelT, CreateRequestT, SetRequestT, GetResponseT]) Get(c *
 	item, err := h.CRUDService.Get(c.Request.Context(), req.ID)
 	if err != nil {
 		c.Error(fmt.Errorf("Get: Неккоректные данные: %w", err))
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": fmt.Errorf("Ошибка получения \"%v\"", h.tableName)})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Ошибка получения \"%v\"", h.TableName)})
 		return
 	}
 

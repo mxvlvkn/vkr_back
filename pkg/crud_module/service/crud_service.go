@@ -19,95 +19,95 @@ type CRUDServiceI[
 	Delete(ctx context.Context, id uint64) error
 	Get(ctx context.Context, id uint64) (ModelT, error)
 	Set(ctx context.Context, req cruddto.SetRequest) error
-	Init(itemRepo crudrepository.ItemRepositoryI[ModelT], cfg *config.Config, tableName string, newItemFunc func()ModelT)
+	Init(ItemRepo crudrepository.ItemRepositoryI[ModelT], cfg *config.Config, TableName string, newItemFunc func()ModelT)
 }
 
 type CRUDServiceS[
 	ModelT crudmodel.Item,
 ] struct {
-	itemRepo  crudrepository.ItemRepositoryI[ModelT]
+	ItemRepo  crudrepository.ItemRepositoryI[ModelT]
 	cfg       *config.Config
-	tableName string
-	newItemFunc func()ModelT
+	TableName string
+	NewItemFunc func()ModelT
 }
 
 func NewGRUDService[
 	ModelT crudmodel.Item,
-](itemRepo crudrepository.ItemRepositoryI[ModelT], cfg *config.Config, tableName string, newItemFunc func()ModelT) CRUDServiceI[ModelT] {
+](ItemRepo crudrepository.ItemRepositoryI[ModelT], cfg *config.Config, TableName string, newItemFunc func()ModelT) CRUDServiceI[ModelT] {
 	return &CRUDServiceS[ModelT]{
-		itemRepo: 	  itemRepo,
+		ItemRepo: 	  ItemRepo,
 		cfg:      	  cfg,
-		tableName:    tableName,
-		newItemFunc:  newItemFunc,
+		TableName:    TableName,
+		NewItemFunc:  newItemFunc,
 	}
 }
 
 func (s *CRUDServiceS[ModelT]) GetAll(ctx context.Context, req cruddto.GetAllRequest) (*[]ModelT, error) {
-	items, err := s.itemRepo.GetAll(ctx, req)
+	items, err := s.ItemRepo.GetAll(ctx, req)
 	if err != nil || items == nil {
-		return nil, fmt.Errorf("Ошибка получения строк \"%v\": %w", s.tableName, err)
+		return nil, fmt.Errorf("Ошибка получения строк \"%v\": %w", s.TableName, err)
 	}
 
 	return items, nil
 }
 
 func (s *CRUDServiceS[ModelT]) Create(ctx context.Context, req cruddto.CreateRequest) error {
-	newItemData := s.newItemFunc()
+	newItemData := s.NewItemFunc()
 	utils.FillStructFromStruct(req, newItemData)
 
-	err := s.itemRepo.Create(ctx, newItemData)
+	err := s.ItemRepo.Create(ctx, newItemData)
 	if err != nil {
-		return fmt.Errorf("Ошибка создания \"%v\": %w", s.tableName, err)
+		return fmt.Errorf("Ошибка создания \"%v\": %w", s.TableName, err)
 	}
 
 	return nil
 }
 
 func (s *CRUDServiceS[ModelT]) Delete(ctx context.Context, id uint64) error {
-	err := s.itemRepo.Delete(ctx, id)
+	err := s.ItemRepo.Delete(ctx, id)
 	if err != nil {
-		return fmt.Errorf("Ошибка удаления \"%v\": %w", s.tableName, err)
+		return fmt.Errorf("Ошибка удаления \"%v\": %w", s.TableName, err)
 	}
 
 	return nil
 }
 
 func (s *CRUDServiceS[ModelT]) Get(ctx context.Context, id uint64) (ModelT, error) {
-	item, err := s.itemRepo.FindByID(ctx, id)
+	item, err := s.ItemRepo.FindByID(ctx, id)
 	if err != nil {
 		var nullPtr ModelT
-		return nullPtr, fmt.Errorf("Ошибка получения \"%v\": %w", s.tableName, err)
+		return nullPtr, fmt.Errorf("Ошибка получения \"%v\": %w", s.TableName, err)
 	}
 
 	return item, nil
 }
 
 func (s *CRUDServiceS[ModelT]) Set(ctx context.Context, req cruddto.SetRequest) error {
-	item := s.newItemFunc()
+	item := s.NewItemFunc()
 	updates, err := item.GetUpdateMap(req)
 	if err != nil {
-		return fmt.Errorf("Ошибка получения updates \"%v\": %w", s.tableName, err)
+		return fmt.Errorf("Ошибка получения updates \"%v\": %w", s.TableName, err)
 	}
 
-	err = s.itemRepo.Update(ctx, req.GetID(), updates)
+	err = s.ItemRepo.Update(ctx, req.GetID(), updates)
 	if err != nil {
-		return fmt.Errorf("Ошибка изменения строки \"%v\": %w", s.tableName, err)
+		return fmt.Errorf("Ошибка изменения строки \"%v\": %w", s.TableName, err)
 	}
 
 	return nil
 }
 
-func (s *CRUDServiceS[ModelT]) Init(itemRepo crudrepository.ItemRepositoryI[ModelT], cfg *config.Config, tableName string, newItemFunc func()ModelT) {
-	s.itemRepo = itemRepo
+func (s *CRUDServiceS[ModelT]) Init(ItemRepo crudrepository.ItemRepositoryI[ModelT], cfg *config.Config, TableName string, newItemFunc func()ModelT) {
+	s.ItemRepo = ItemRepo
 	s.cfg = cfg
-	s.tableName = tableName
-	s.newItemFunc = newItemFunc
+	s.TableName = TableName
+	s.NewItemFunc = newItemFunc
 }
 
 func (s *CRUDServiceS[ModelT]) GetRepo() crudrepository.ItemRepositoryI[ModelT] {
-	return s.itemRepo
+	return s.ItemRepo
 }
 
 func (s *CRUDServiceS[ModelT]) GetNewItemFunc() func()ModelT {
-	return s.newItemFunc
+	return s.NewItemFunc
 }

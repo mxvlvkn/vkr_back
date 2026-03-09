@@ -65,7 +65,7 @@ func (r *ItemRepositoryS[ModelT]) GetAll(ctx context.Context, req cruddto.GetAll
 	}
 
 	if req.FilterMethod != "default" && req.FilterField != "" {
-		order := req.FilterField + " " + req.FilterMethod
+		order := utils.CamelCaseToSnake(req.FilterField) + " " + req.FilterMethod
     	db = db.Order(order)
 	}
 

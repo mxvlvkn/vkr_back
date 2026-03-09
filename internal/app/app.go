@@ -24,14 +24,27 @@ import (
 	"wms/internal/modules/units/service"
 	"wms/internal/modules/units/handler"
 
-	"wms/internal/modules/users_view/repository"
-	"wms/internal/modules/users_view/service"
-	"wms/internal/modules/users_view/handler"
-
     "wms/internal/modules/users/repository"
 	"wms/internal/modules/users/service"
 	"wms/internal/modules/users/handler"
+
+    "wms/internal/modules/users_view/repository"
+	"wms/internal/modules/users_view/service"
+	"wms/internal/modules/users_view/handler"
+
+    "wms/internal/modules/manufacturers/repository"
+	"wms/internal/modules/manufacturers/service"
+	"wms/internal/modules/manufacturers/handler"
+
+    "wms/internal/modules/numenclatures/repository"
+	"wms/internal/modules/numenclatures/service"
+	"wms/internal/modules/numenclatures/handler"
+
+    "wms/internal/modules/numenclatures_view/repository"
+	"wms/internal/modules/numenclatures_view/service"
+	"wms/internal/modules/numenclatures_view/handler"
 )
+
 
 type App struct {
 	cfg    *config.Config
@@ -63,6 +76,9 @@ func New() (*App, error) {
     userViewRepo := usersviewrepository.NewRepository(db, cfg)
     roleRepo := rolesrepository.NewRepository(db, cfg)
     unitRepo := unitsrepository.NewRepository(db, cfg)
+    manufacturerRepo := manufacturersrepository.NewRepository(db, cfg)
+    numenclatureRepo := numenclaturesrepository.NewRepository(db, cfg)
+    numenclatureViewRepo := numenclaturesviewrepository.NewRepository(db, cfg)
 
     // Создание сервисов
     authService := authservice.NewService(userRepo, roleRepo, cfg)
@@ -70,19 +86,26 @@ func New() (*App, error) {
     usersViewService := usersviewservice.NewService(userViewRepo, cfg)
     rolesService := rolesservice.NewService(roleRepo, cfg)
     unitsService := unitsservice.NewService(unitRepo, cfg)
+    manufacturersService := manufacturersservice.NewService(manufacturerRepo, cfg)
+    numenclaturesService := numenclaturesservice.NewService(numenclatureRepo, cfg)
+    numenclaturesViewService := numenclaturesviewservice.NewService(numenclatureViewRepo, cfg)
 
     // Создание сервера
     srv := server.New(cfg, db)
 
     // Создание роутов
     api := srv.Router().Group("/api")
+    authhandler.RegisterRoutes(api, authService)
+
 	api.Use(middleware.AuthMiddleware(authService))
 
-    authhandler.RegisterRoutes(api, authService)
     usershandler.RegisterRoutes(api, usersService)
     usersviewhandler.RegisterRoutes(api, usersViewService)
     roleshandler.RegisterRoutes(api, rolesService)
     unitshandler.RegisterRoutes(api, unitsService)
+    manufacturershandler.RegisterRoutes(api, manufacturersService)
+    numenclatureshandler.RegisterRoutes(api, numenclaturesService)
+    numenclaturesviewhandler.RegisterRoutes(api, numenclaturesViewService)
 
     return &App{
         cfg:    cfg,
