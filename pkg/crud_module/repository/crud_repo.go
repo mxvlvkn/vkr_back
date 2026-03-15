@@ -3,6 +3,7 @@ package crudrepository
 import (
 	"context"
 	"strings"
+	"fmt"
 
 	"wms/internal/config"
 	"wms/pkg/crud_module/dto"
@@ -45,6 +46,10 @@ func (r *ItemRepositoryS[ModelT]) GetAll(ctx context.Context, req cruddto.GetAll
 		db = db.
 			Limit(pageSize).
 			Offset(offset)
+	}
+
+	if req.WhereID != -1 && req.WhereField != "" {
+		db.Where(fmt.Sprintf("%s = ?", req.WhereField), req.WhereID)
 	}
 
 	if req.Search != "" {

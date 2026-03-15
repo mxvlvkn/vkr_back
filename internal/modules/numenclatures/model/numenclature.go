@@ -13,6 +13,7 @@ type Numenclature struct {
 	UseMarks 			bool        `gorm:"not null" json:"useMarks"`
 	UnitID 				uint64      `gorm:"not null" json:"unitID"`
 	ManufacturerID 		uint64      `gorm:"not null" json:"manufacturerID"`
+	ImageURL 			string      `gorm:"not null" json:"ImageURL"`
 }
 
 
@@ -50,6 +51,11 @@ func (Numenclature) GetUpdateMap(setRequest any) (map[string]any, error) {
 	}
 
 	fields["useMarks"], err = utils.GetStructFieldByString(setRequest, "UseMarks")
+	if err != nil {
+		return nil, fmt.Errorf("GetUpdateMap: %w", err)
+	}
+
+	fields["imageURL"], err = utils.GetStructFieldByString(setRequest, "ImageURL")
 	if err != nil {
 		return nil, fmt.Errorf("GetUpdateMap: %w", err)
 	}

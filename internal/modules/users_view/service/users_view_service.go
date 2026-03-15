@@ -17,6 +17,6 @@ type ServiceS struct {
 
 func NewService(repo thisrepo.Repository, cfg *config.Config) ServiceI {
 	s := ServiceS{}
-	s.Init(repo, cfg, "UsersView", thismodel.New)
+	s.Init(repo, cfg, "UsesrView", thismodel.New)
 	return &s
 }

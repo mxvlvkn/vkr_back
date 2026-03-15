@@ -7,4 +7,5 @@ type GetResponse struct {
 	ManufacturerID 	uint64    `json:"manufacturerID" binding:"required"`
 	Article		 	string    `json:"article" binding:"required"`
 	UseMarks		bool      `json:"useMarks" binding:"required"`
+	ImageURL		string    `json:"previewImage" binding:"required"`
 }

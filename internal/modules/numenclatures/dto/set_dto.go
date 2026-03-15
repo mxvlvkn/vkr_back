@@ -8,6 +8,8 @@ type SetRequest struct {
 	ManufacturerID 	uint64    `json:"manufacturerID" binding:"required"`
 	Article		 	string    `json:"article" binding:"required,min=10,max=200"`
 	UseMarks		bool      `json:"useMarks" binding:"required"`
+	ImageURL	   	string	  ``
+	ImageFields	    []string  `json:"imageFields"`
 }
 
 func (sr SetRequest) GetID() uint64 {

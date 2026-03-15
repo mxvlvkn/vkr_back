@@ -37,11 +37,9 @@ func New(cfg *config.Config, db *gorm.DB) *Server {
 	//!router.GET("/", handler.RootHandler)
 	router.GET("/health", healthhandler.HealthHandler)
 	router.GET("/ready", healthhandler.ReadyHandler)
+	router.Static("/uploads", "./uploads")
 
 	
-
-
-	// 6. Создаём стандартный net/http.Server с нашим роутером
 	httpServer := &http.Server{
 		Addr:         fmt.Sprintf(":%s", cfg.Port),
 		Handler:      router,

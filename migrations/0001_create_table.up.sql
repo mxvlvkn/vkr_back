@@ -35,11 +35,24 @@ CREATE TABLE manufacturers (
 CREATE TABLE numenclatures (
     id SERIAL PRIMARY KEY,
     name        VARCHAR(400) NOT NULL,
+    image_url   VARCHAR(200) NOT NULL,
     use_serial     BOOLEAN NOT NULL,
     use_marks     BOOLEAN NOT NULL,
     article         VARCHAR(200) UNIQUE NOT NULL,
     unit_id   INT NOT NULL REFERENCES units(id),
     manufacturer_id   INT NOT NULL REFERENCES manufacturers(id)
+);
+
+CREATE TABLE barcodes (
+    id SERIAL PRIMARY KEY,
+    code        VARCHAR(100) UNIQUE NOT NULL,
+    numenclature_id   INT NOT NULL REFERENCES numenclatures(id)
+);
+
+CREATE TABLE marks (
+    id SERIAL PRIMARY KEY,
+    code        VARCHAR(200) UNIQUE NOT NULL,
+    numenclature_id   INT NOT NULL REFERENCES numenclatures(id)
 );
 
 CREATE UNIQUE INDEX idx_users_login ON users (LOWER(login));

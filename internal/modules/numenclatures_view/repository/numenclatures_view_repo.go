@@ -17,6 +17,6 @@ type repository struct {
 
 func NewRepository(db *gorm.DB, cfg *config.Config) Repository {
 	repo := repository{}
-	repo.Init(db, thismodel.New, cfg, []string{}, []string{})
+	repo.Init(db, thismodel.New, cfg, []string{"name", "article", "manufacturer"}, []string{})
 	return &repo
 }

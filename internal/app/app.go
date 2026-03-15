@@ -43,6 +43,22 @@ import (
     "wms/internal/modules/numenclatures_view/repository"
 	"wms/internal/modules/numenclatures_view/service"
 	"wms/internal/modules/numenclatures_view/handler"
+
+    "wms/internal/modules/barcodes/repository"
+	"wms/internal/modules/barcodes/service"
+	"wms/internal/modules/barcodes/handler"
+
+    "wms/internal/modules/barcodes_view/repository"
+	"wms/internal/modules/barcodes_view/service"
+	"wms/internal/modules/barcodes_view/handler"
+
+    "wms/internal/modules/marks/repository"
+	"wms/internal/modules/marks/service"
+	"wms/internal/modules/marks/handler"
+
+    "wms/internal/modules/marks_view/repository"
+	"wms/internal/modules/marks_view/service"
+	"wms/internal/modules/marks_view/handler"
 )
 
 
@@ -79,6 +95,10 @@ func New() (*App, error) {
     manufacturerRepo := manufacturersrepository.NewRepository(db, cfg)
     numenclatureRepo := numenclaturesrepository.NewRepository(db, cfg)
     numenclatureViewRepo := numenclaturesviewrepository.NewRepository(db, cfg)
+    barcodeRepo := barcodesrepository.NewRepository(db, cfg)
+    barcodeViewRepo := barcodesviewrepository.NewRepository(db, cfg)
+    markRepo := marksrepository.NewRepository(db, cfg)
+    markViewRepo := marksviewrepository.NewRepository(db, cfg)
 
     // Создание сервисов
     authService := authservice.NewService(userRepo, roleRepo, cfg)
@@ -89,6 +109,10 @@ func New() (*App, error) {
     manufacturersService := manufacturersservice.NewService(manufacturerRepo, cfg)
     numenclaturesService := numenclaturesservice.NewService(numenclatureRepo, cfg)
     numenclaturesViewService := numenclaturesviewservice.NewService(numenclatureViewRepo, cfg)
+    barcodesService := barcodesservice.NewService(barcodeRepo, cfg)
+    barcodesViewService := barcodesviewservice.NewService(barcodeViewRepo, cfg)
+    marksService := marksservice.NewService(markRepo, cfg)
+    marksViewService := marksviewservice.NewService(markViewRepo, cfg)
 
     // Создание сервера
     srv := server.New(cfg, db)
@@ -106,6 +130,10 @@ func New() (*App, error) {
     manufacturershandler.RegisterRoutes(api, manufacturersService)
     numenclatureshandler.RegisterRoutes(api, numenclaturesService)
     numenclaturesviewhandler.RegisterRoutes(api, numenclaturesViewService)
+    barcodeshandler.RegisterRoutes(api, barcodesService)
+    barcodesviewhandler.RegisterRoutes(api, barcodesViewService)
+    markshandler.RegisterRoutes(api, marksService)
+    marksviewhandler.RegisterRoutes(api, marksViewService)
 
     return &App{
         cfg:    cfg,

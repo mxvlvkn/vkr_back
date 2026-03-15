@@ -3,12 +3,19 @@ package crudservice
 import (
 	"context"
 	"fmt"
+	"mime/multipart"
+	"os"
+	"path/filepath"
+	"strings"
+
+	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 
 	"wms/internal/config"
-	"wms/pkg/crud_module/model"
 	"wms/pkg/crud_module/dto"
-	"wms/pkg/utils"
+	"wms/pkg/crud_module/model"
 	"wms/pkg/crud_module/repository"
+	"wms/pkg/utils"
 )
 
 type CRUDServiceI[
@@ -19,6 +26,8 @@ type CRUDServiceI[
 	Delete(ctx context.Context, id uint64) error
 	Get(ctx context.Context, id uint64) (ModelT, error)
 	Set(ctx context.Context, req cruddto.SetRequest) error
+	UploadIMG(ctx *gin.Context, image multipart.File, header *multipart.FileHeader, dirName string) (string, error)
+	DeleteIMG(path string) error
 	Init(ItemRepo crudrepository.ItemRepositoryI[ModelT], cfg *config.Config, TableName string, newItemFunc func()ModelT)
 }
 
@@ -93,6 +102,56 @@ func (s *CRUDServiceS[ModelT]) Set(ctx context.Context, req cruddto.SetRequest) 
 	if err != nil {
 		return fmt.Errorf("Ошибка изменения строки \"%v\": %w", s.TableName, err)
 	}
+
+	return nil
+}
+
+func (s *CRUDServiceS[ModelT]) UploadIMG(ctx *gin.Context, image multipart.File, header *multipart.FileHeader, dirName string) (string, error) {
+    dir := "./uploads/" + dirName
+    path := "/uploads/" + dirName
+
+
+	if image == nil {
+		return path + "/" + "default.jpg", nil
+	}
+
+	const maxSize = 10 << 20 // 10 MB
+    if header.Size > maxSize {
+        return "", fmt.Errorf("Слишком большой файл")
+    }
+
+    allowed := map[string]bool{
+        "image/jpeg": true,
+        "image/png":  true,
+        "image/webp": true,
+    }
+    contentType := header.Header.Get("Content-Type")
+    if !allowed[contentType] {
+		return "", fmt.Errorf("Файл должен быть jpg/png/webp")
+    }
+
+    ext := filepath.Ext(header.Filename)
+    filename := fmt.Sprintf("%s%s", uuid.New().String(), ext)
+
+    os.MkdirAll(dir, 0755)
+    savePath := filepath.Join(dir, filename)
+    if err := ctx.SaveUploadedFile(header, savePath); err != nil {
+		return "", fmt.Errorf("Ошибка сохранения файла")
+    }
+
+    return path + "/" + filename, nil
+}
+
+func (s *CRUDServiceS[ModelT]) DeleteIMG(path string) error {
+    fullPath := filepath.Join(".", strings.TrimPrefix(path, "/"))
+
+    if _, err := os.Stat(fullPath); os.IsNotExist(err) {
+        return nil 
+    }
+
+    if err := os.Remove(fullPath); err != nil {
+        return fmt.Errorf("Не удалось удалить файл %s: %w", fullPath, err)
+    }
 
 	return nil
 }
